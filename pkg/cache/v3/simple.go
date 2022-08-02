@@ -184,13 +184,18 @@ func NewSnapshotCacheWithHeartbeating(ctx context.Context, ads bool, hash NodeHa
 }
 
 func (cache *snapshotCache) sendHeartbeats(ctx context.Context, node string) {
+	fmt.Println("node", node)
 	snapshot := cache.snapshots[node]
 	if info, ok := cache.status[node]; ok {
 		info.mu.Lock()
 		for id, watch := range info.watches {
 			// Respond with the current version regardless of whether the version has changed.
-			version := snapshot.GetVersion(watch.Request.TypeUrl)
-			resources := snapshot.GetResourcesAndTTL(watch.Request.TypeUrl)
+			var version string
+			var resources map[string]types.ResourceWithTTL
+			if snapshot != nil {
+				version = snapshot.GetVersion(watch.Request.TypeUrl)
+				resources = snapshot.GetResourcesAndTTL(watch.Request.TypeUrl)
+			}
 
 			// TODO(snowp): Construct this once per type instead of once per watch.
 			resourcesWithTTL := map[string]types.ResourceWithTTL{}
@@ -218,6 +223,7 @@ func (cache *snapshotCache) sendHeartbeats(ctx context.Context, node string) {
 
 // SetSnapshotCacheContext updates a snapshot for a node.
 func (cache *snapshotCache) SetSnapshot(ctx context.Context, node string, snapshot ResourceSnapshot) error {
+	fmt.Println("HOO HOO SetSnapshot")
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
@@ -279,6 +285,7 @@ func (cache *snapshotCache) SetSnapshot(ctx context.Context, node string, snapsh
 
 // GetSnapshots gets the snapshot for a node, and returns an error if not found.
 func (cache *snapshotCache) GetSnapshot(node string) (ResourceSnapshot, error) {
+	fmt.Println("HOO HOO GetSnapshot")
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
@@ -291,6 +298,7 @@ func (cache *snapshotCache) GetSnapshot(node string) (ResourceSnapshot, error) {
 
 // ClearSnapshot clears snapshot and info for a node.
 func (cache *snapshotCache) ClearSnapshot(node string) {
+	fmt.Println("HOO HOO ClearSnapshot")
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
@@ -580,6 +588,7 @@ func (cache *snapshotCache) Fetch(ctx context.Context, request *Request) (Respon
 
 // GetStatusInfo retrieves the status info for the node.
 func (cache *snapshotCache) GetStatusInfo(node string) StatusInfo {
+	fmt.Println("HOO HOO GetStatusInfo")
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
@@ -594,6 +603,7 @@ func (cache *snapshotCache) GetStatusInfo(node string) StatusInfo {
 
 // GetStatusKeys retrieves all node IDs in the status map.
 func (cache *snapshotCache) GetStatusKeys() []string {
+	fmt.Println("HOO HOO GetStatusKeys")
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
 
